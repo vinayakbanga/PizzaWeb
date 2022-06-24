@@ -18,9 +18,16 @@ function orderController(){
             address:address
         })
         order.save().then(result=>{
-             req.flash('success','order placed')
-             delete req.session.cart
-             return res.redirect('/customer/orders')
+            Order.populate(result,{path:'customerId'},(err,placedOrder)=>{
+
+                req.flash('success','order placed')
+                delete req.session.cart
+                //emit
+                const eventEmitter = req.app.get('eventEmitter')
+                    eventEmitter.emit('orderPlaced',placedOrder)
+   
+                return res.redirect('/customer/orders')
+            })
         }).catch(err=>{
             req.flash('error','Something went wrong')
            return res.redirect('/cart') 

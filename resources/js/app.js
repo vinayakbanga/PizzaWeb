@@ -51,7 +51,7 @@ if(alertMsg) {
     }, 2000)
 }
 
-initAdmin()
+
 
 
 
@@ -65,6 +65,11 @@ let time= document.createElement('small')
 
 // console.log(order);
 function updateStatus(order){
+
+  statuses.forEach(status => {
+      status.classList.remove('step-completed')
+      status.classList.remove('current')
+  });
   let stepCompleted=true;
 
   statuses.forEach((status)=>{
@@ -90,3 +95,36 @@ function updateStatus(order){
 }
 
 updateStatus(order);
+
+//socket client side
+let socket =io()
+initAdmin(socket)
+
+//join
+if(order){
+
+  socket.emit('join',`order_${order._id}`)
+}
+
+//for admin
+let adminAreaPath= window.location.pathname
+console.log(adminAreaPath);
+if(adminAreaPath.includes('admin')){
+  socket.emit('join','adminRoom')
+}
+
+
+socket.on('orderUpdated',(data)=>{
+  const updatedOrder ={ ...order}
+  updatedOrder.updatedAt=moment().format()
+  updatedOrder.status = data.status
+  updateStatus(updatedOrder)
+  console.log(data)
+  new Noty({
+    type:'success',
+    timeout:1000,
+    text: "Order updated",
+    layout:"bottomCenter"
+    
+  }).show();
+})
