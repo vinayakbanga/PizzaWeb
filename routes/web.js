@@ -42,6 +42,7 @@ app.get('/customer/orders/:id',auth,orderController().show)
 app.get('/admin/orders',admin,adminOrderController().index)
 
 app.post('/admin/order/status',admin,statusController().update)
+ 
 
 
 
